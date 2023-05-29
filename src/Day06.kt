@@ -28,10 +28,47 @@ fun main() {
         return result
     }
 
-    // TODO: better solution with dp tabulation
+    fun totalFishAfterTabulation(days: Int, initial: Int): Long {
+        /*
+        let h = f(x, 0), the result is f(days, initials) = f(days-initials, 0) = h(days-initials)
+        h(x + 9) = h(x) + h(x + 2)
+        also...
+        h(0) = 1
+        h(1) = 2
+        ...
+        h(7) = h(0) + h(-2) = 2
+        h(8) = h(1) + h(-1) = 3
+        h(9) = h(2) + h(0) = 3
+        h(10) = h(3) + h(1) = 4
+        */
+        fun h(x: Int): Long {
+            when (x) {
+                0 -> return 1L
+                in 1..7 -> return 2L
+                8 -> return 3L
+            }
+
+            val cache = LongArray(x + 1) { index ->
+                when (index) {
+                    0 -> 1L
+                    in 1..7 -> 2L
+                    8 -> 3L
+                    else -> 0L
+                }
+            }
+
+            for (i in 0..x-9) {
+                cache[i + 9] = cache[i] + cache[i + 2]
+            }
+
+            return cache[x]
+        }
+
+        return h(days - initial)
+    }
+
     fun totalFishAfter(days: Int, initial: Int): Long {
-        val initialCache = Array(days + 1) { Array<Long>(MAX_FISH_TIMER + 1) { -1 } }
-        return totalFishAfterMemoization(days, initial, initialCache)
+        return totalFishAfterTabulation(days, initial)
     }
 
     fun part1(input: List<String>): Long {
